@@ -38,11 +38,11 @@ How to install
 
     - Use clone method if not using GIT for your project
 
-        git clone git://github.com/besimple/DeploymentBundle.git vendor/BeSimple/DeploymentBundle
+        git clone git://github.com/BeSimple/DeploymentBundle.git vendor/BeSimple/DeploymentBundle
 
     - Use submodule method if this is the case
 
-        git submodule add git://github.com/besimple/DeploymentBundle.git vendor/BeSimple/DeploymentBundle
+        git submodule add git://github.com/BeSimple/DeploymentBundle.git vendor/BeSimple/DeploymentBundle
 
 
 2.  Register bundle in `AppKernel` class
