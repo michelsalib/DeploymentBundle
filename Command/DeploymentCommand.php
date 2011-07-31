@@ -38,8 +38,8 @@ abstract class DeploymentCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $deployer = $this->container->get('be_simple_deployment.deployer');
-        $eventDispatcher = $this->container->get('event_dispatcher');
+        $deployer = $this->getContainer()->get('be_simple_deployment.deployer');
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
         $this->output = $output;
         $this->output->setDecorated(true);
@@ -111,7 +111,7 @@ abstract class DeploymentCommand extends BaseCommand
      */
     public function write($message, $style = 'comment')
     {
-        $this->output->writeln('<%s>%s</%s>', $style, $message, $style);
+        $this->output->writeln(sprintf('<%s>%s</%s>', $style, $message, $style));
     }
 
     /**

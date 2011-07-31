@@ -96,7 +96,7 @@ class Rsync
         if (!$root) {
             throw new \InvalidArgumentException(sprintf('Invalid "root" option : "%s" is not a valid path', $this->config['root']));
         }
-
+        
         $command = $this->buildCommand($connection, $rules, $real);
         $process = new Process($command, $root);
 
@@ -155,14 +155,14 @@ class Rsync
         }
 
         if (count($rules)) {
-            $options[] = "--filter='+ *'";
+            //$options[] = "--filter='+ *'";
 
             foreach ($rules['ignore'] as $mask) {
-                $options[] = sprintf('-f -%s', $mask);
+                $options[] = sprintf('--exclude=%s', $mask);
             }
 
             foreach ($rules['force'] as $mask) {
-                $options[] = sprintf('-f +%s', $mask);
+                $options[] = sprintf('--include=%s', $mask);
             }
         }
 
