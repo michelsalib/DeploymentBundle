@@ -22,7 +22,7 @@ class Ssh
     /**
      * @var array
      */
-    protected $config;
+    protected $symfony;
 
     /**
      * @var resource
@@ -47,13 +47,11 @@ class Ssh
     /**
      * @param Logger $logger
      * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
-     * @param array $config
      */
-    public function __construct(Logger $logger, EventDispatcherInterface $eventDispatcher, array $config)
+    public function __construct(Logger $logger, EventDispatcherInterface $eventDispatcher)
     {
         $this->logger     = $logger;
         $this->dispatcher = $eventDispatcher;
-        $this->config     = $config;
         $this->session    = null;
         $this->shell      = null;
         $this->stdout     = array();
@@ -135,11 +133,12 @@ class Ssh
         $this->shell = ssh2_shell($this->session);
 
         if (!$this->shell) {
-            throw new \RuntimeException(sprintf('Failed opening "%s" shell', $this->config['shell']));
+            throw new \RuntimeException('Failed opening shell');
         }
 
         $this->stdout = array();
         $this->stdin = array();
+        $this->symfony = $connection['symfony_command'];
     }
 
     /**
@@ -170,11 +169,11 @@ class Ssh
         $stderr = explode("\n", stream_get_contents($errStream));
 
         if (count($stdout)) {
-            $this->dispatcher->dispatch(Events::onDeploymentRsyncFeedback, new FeedbackEvent('out', implode("\n", $stdout)));
+            $this->dispatcher->dispatch(Events::onDeploymentSshFeedback, new FeedbackEvent('out', implode("\n", $stdout)));
         }
 
         if (count($stdout)) {
-            $this->dispatcher->dispatch(Events::onDeploymentRsyncFeedback, new FeedbackEvent('err', implode("\n", $stderr)));
+            $this->dispatcher->dispatch(Events::onDeploymentSshFeedback, new FeedbackEvent('err', implode("\n", $stderr)));
         }
 
         $this->stdout = array_merge($this->stdout, $stdout);
@@ -199,9 +198,8 @@ class Ssh
             return $command['command'];
         }
 
-        $symfony = $this->config['symfony_command'];
         $env = $command['env'] ?: $this->env;
 
-        return sprintf('%s %s --env="%s"', $symfony, $command['command'], $env);
+        return sprintf('%s %s --env="%s"', $this->symfony, $command['command'], $env);
     }
 }

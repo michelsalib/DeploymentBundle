@@ -115,6 +115,7 @@ class Configuration
                     ->scalarNode('ssh_port')->defaultValue(22)->cannotBeEmpty()->end()
                     ->scalarNode('username')->defaultNull()->end()
                     ->scalarNode('password')->defaultNull()->end()
+                    ->scalarNode('symfony_command')->defaultNull()->end()
                     ->scalarNode('path')->isRequired()->cannotBeEmpty()->end()
                     ->arrayNode('rules')
                         ->prototype('scalar')->end()

@@ -23,7 +23,6 @@
         <service id="be_simple_deployment.ssh" class="%be_simple_deployment.ssh.class%">
             <argument type="service" id="be_simple_deployment.logger" />
             <argument type="service" id="event_dispatcher" />
-            <argument>%be_simple_deployment.config.ssh%</argument>
         </service>
 
 		<service id="be_simple_deployment.config" class="%be_simple_deployment.config.class%">
