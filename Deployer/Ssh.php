@@ -94,11 +94,11 @@ class Ssh
     public function run(array $connection, array $commands, $real = false)
     {
         $this->connect($connection);
-        $this->execute(array('type' => 'shell', 'command' => sprintf('cd %s', $connection['path'])));
+        $commandPrefix = sprintf('cd %s;', $connection['path']);
 
         if ($real) {
             foreach ($commands as $command) {
-                $this->execute($command);
+                $this->execute($command, $commandPrefix);
             }
         }
 
@@ -153,32 +153,35 @@ class Ssh
      * @param array $command
      * @return void
      */
-    protected function execute(array $command)
+    protected function execute(array $command, $commandPrefix)
     {
         $command = $this->buildCommand($command);
 
         $this->dispatcher->dispatch(Events::onDeploymentSshStart, new CommandEvent($command));
 
-        $outStream = ssh2_exec($this->session, $command);
+        $outStream = ssh2_exec($this->session, $commandPrefix.$command);
         $errStream = ssh2_fetch_stream($outStream, SSH2_STREAM_STDERR);
 
         stream_set_blocking($outStream, true);
         stream_set_blocking($errStream, true);
 
-        $stdout = explode("\n", stream_get_contents($outStream));
-        $stderr = explode("\n", stream_get_contents($errStream));
+        $stdout = stream_get_contents($outStream);
+        $stderr = stream_get_contents($errStream);
+
+        $stdout = !empty($stdout) ? explode('\n', $stdout) : array();
+        $stderr = !empty($stderr) ? explode('\n', $stderr) : array();
 
         if (count($stdout)) {
             $this->dispatcher->dispatch(Events::onDeploymentSshFeedback, new FeedbackEvent('out', implode("\n", $stdout)));
         }
 
-        if (count($stdout)) {
+        if (count($stderr)) {
             $this->dispatcher->dispatch(Events::onDeploymentSshFeedback, new FeedbackEvent('err', implode("\n", $stderr)));
         }
 
         $this->stdout = array_merge($this->stdout, $stdout);
 
-        if (is_array($stderr)) {
+        if (count($stderr)) {
             $this->stderr = array_merge($this->stderr, $stderr);
         } else {
             $this->dispatcher->dispatch(Events::onDeploymentSshSuccess, new CommandEvent($command));
